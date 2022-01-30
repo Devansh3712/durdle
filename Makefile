@@ -9,4 +9,7 @@ clean:
 	pyclean .
 
 lint:
-	mypy .
+	mypy src
+
+requirements:
+	poetry export -f requirements.txt --output requirements.txt --without-hashes
