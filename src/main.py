@@ -27,7 +27,9 @@ from .utils import (
     create_guess_embed,
     create_final_result_embed,
     create_error_embed,
-    update_users_dict
+    update_users_dict,
+    get_user_word,
+    random_colour
 )
 
 token = settings.token
@@ -45,18 +47,13 @@ guilds: List[int] = []
 users: Dict[str, Dict[str, Any]] = {}
 current_word: str = get_word()
 english_dictionary = enchant.Dict("en_US")
-print(datetime.utcnow().strftime("%d %B, %Y"), ": ", current_word)
 
-async def _current_word() -> None:
+async def _reset_dict() -> None:
     await client.wait_until_ready()
     while not client.is_closed():
-        global current_word
         current_time = datetime.utcnow().strftime("%H%M")
         if current_time == "0000":
-            current_word = get_word()
             users.clear()
-            current_date = datetime.utcnow().strftime("%d %B, %Y")
-            print(f"{current_date}: {current_word}")
             _time = 86400
         else:
             _time = 1
@@ -99,13 +96,15 @@ async def _guess(ctx, word: str):
     if not english_dictionary.check(word):
         embed = create_error_embed("Word not found in dictionary.")
         return await ctx.send(embed = embed)
-    result = check_guess(word, current_word)
+    if str(ctx.author) not in users:
+        users = get_user_word(ctx, users)
+    result = check_guess(word, users[str(ctx.author)]["word"])
     users = update_users_dict(ctx, users, result)
     if users[str(ctx.author)]["count"] == 6:
         update_user_streak(str(ctx.author), False)
         final = create_final_result_embed(ctx, users)
         return await ctx.send(embed = final)
-    elif word.lower() == current_word:
+    elif word.lower() == users[str(ctx.author)]["word"]:
         users[str(ctx.author)]["guessed"] = True
         update_user_streak(str(ctx.author), True)
         final = create_final_result_embed(ctx, users)
@@ -129,13 +128,15 @@ async def guess(ctx, word: str):
     if not english_dictionary.check(word):
         embed = create_error_embed("Word not found in dictionary.")
         return await ctx.send(embed = embed)
-    result = check_guess(word, current_word)
+    if str(ctx.author) not in users:
+        users = get_user_word(ctx, users)
+    result = check_guess(word, users[str(ctx.author)]["word"])
     users = update_users_dict(ctx, users, result)
     if users[str(ctx.author)]["count"] == 6:
         update_user_streak(str(ctx.author), False)
         final = create_final_result_embed(ctx, users)
         return await ctx.send(embed = final)
-    elif word.lower() == current_word:
+    elif word.lower() == users[str(ctx.author)]["word"]:
         users[str(ctx.author)]["guessed"] = True
         update_user_streak(str(ctx.author), True)
         final = create_final_result_embed(ctx, users)
@@ -143,6 +144,60 @@ async def guess(ctx, word: str):
     embed = create_guess_embed(ctx, users, result)
     return await ctx.send(embed = embed)
 
+@slash.slash(
+    name = "streak",
+    description = "Your durdle streak",
+    guild_ids = guilds
+)
+async def _streak(ctx):
+    result = get_user_streak(str(ctx.author))
+    embed = discord.Embed(
+        title = "Durdle Streak",
+        colour = random_colour()
+    )
+    embed.set_thumbnail(url = str(ctx.author.avatar_url))
+    embed.add_field(
+        name = "Username",
+        value = str(ctx.author),
+        inline = False
+    )
+    embed.add_field(
+        name = "Max Streak",
+        value = f"{result[0]}/{result[1]}",
+        inline = False
+    )
+    embed.add_field(
+        name = "Accuracy",
+        value = f"{((result[0] / result[1]) * 100):.2f}%",
+        inline = False
+    )
+    return await ctx.send(embed = embed)
+
+@client.command()
+async def streak(ctx):
+    result = get_user_streak(str(ctx.author))
+    embed = discord.Embed(
+        title = "Durdle Streak",
+        colour = random_colour()
+    )
+    embed.set_thumbnail(url = str(ctx.author.avatar_url))
+    embed.add_field(
+        name = "Username",
+        value = str(ctx.author),
+        inline = False
+    )
+    embed.add_field(
+        name = "Max Streak",
+        value = f"{result[0]}/{result[1]}",
+        inline = False
+    )
+    embed.add_field(
+        name = "Accuracy",
+        value = f"{((result[0] / result[1]) * 100):.2f}%",
+        inline = False
+    )
+    return await ctx.send(embed = embed)
+
 if __name__ == "__main__":
-    client.loop.create_task(_current_word())
+    client.loop.create_task(_reset_dict())
     client.run(token)

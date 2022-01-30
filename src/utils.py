@@ -8,7 +8,10 @@ from typing import (
 )
 import random
 import discord
-from .database import get_user_streak
+from .database import (
+    get_user_streak,
+    get_word
+)
 
 def random_colour() -> int:
 	rgb: Callable[[], int] = lambda: random.randint(0, 255)
@@ -56,12 +59,18 @@ def update_users_dict(
     users: Dict[str, Dict[str, Any]],
     result: Tuple[str, str]
 ) -> Dict[str, Dict[str, Any]]:
-    if str(ctx.author) in users:
-        users[str(ctx.author)]["count"] += 1
-        users[str(ctx.author)]["tries"].append(result[0])
-    else:
+    users[str(ctx.author)]["count"] += 1
+    users[str(ctx.author)]["tries"].append(result[0])
+    return users
+
+def get_user_word(
+    ctx,
+    users: Dict[str, Dict[str, Any]]
+) -> Dict[str, Dict[str, Any]]:
+    if str(ctx.author) not in users:
         users[str(ctx.author)] = {}
-        users[str(ctx.author)]["count"] = 1
-        users[str(ctx.author)]["tries"] = [result[0]]
+        users[str(ctx.author)]["word"] = get_word()
+        users[str(ctx.author)]["count"] = 0
+        users[str(ctx.author)]["tries"] = []
         users[str(ctx.author)]["guessed"] = False
     return users

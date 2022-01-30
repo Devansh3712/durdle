@@ -5,7 +5,7 @@ from pymongo import MongoClient
 from .config import settings
 
 client = MongoClient(settings.mongodb_uri)
-db = client["test"]
+db = client["durdle"]
 word_collection = db["word-list"]
 user_collection = db["users"]
 
@@ -30,8 +30,6 @@ def update_user_streak(username: str, guessed: bool) -> None:
         updated_user_data = deepcopy(user_data)
         if guessed:
             updated_user_data["streak"] += 1 # type: ignore
-        else:
-            updated_user_data["streak"] = 0
         updated_user_data["played"] += 1 # type: ignore
         user_collection.update_one(
             user_data,
