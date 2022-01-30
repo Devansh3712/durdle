@@ -1,19 +1,19 @@
 [tool.poetry]
 name = "durdle"
 version = "0.1.0"
-description = "Discord wordle bot"
-authors = ["Devansh Singh <devanshamity@gmail.com>", "Kshitij Kapoor <>"]
+description = "Wordle discord bot"
+authors = ["Your Name <you@example.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pydantic = {extras = ["dotenv"], version = "^1.9.0"}
+"discord.py" = "^1.7.3"
 mypy = "^0.931"
 discord-py-slash-command = "^3.0.3"
-pymongo = {extras = ["srv"], version = "^4.0.1"}
 asyncio = "^3.4.3"
 pyenchant = "^3.2.2"
-py-cord = "^1.7.3"
+pymongo = {extras = ["srv"], version = "^4.0.1"}
+pydantic = {extras = ["dotenv"], version = "^1.9.0"}
 
 [tool.poetry.dev-dependencies]
 

@@ -17,7 +17,11 @@ from discord_slash.utils.manage_commands import (
 )
 import enchant
 from .config import settings
-from .database import get_word
+from .database import (
+    get_word,
+    get_user_streak,
+    update_user_streak
+)
 from .durdle import check_guess
 from .utils import (
     create_guess_embed,
@@ -35,6 +39,7 @@ client = commands.Bot(
     )
 )
 slash = SlashCommand(client, sync_commands = True)
+client.remove_command("help")
 
 guilds: List[int] = []
 users: Dict[str, Dict[str, Any]] = {}
@@ -62,6 +67,10 @@ async def on_ready() -> None:
     guilds = [guild for guild in client.guilds]
     print(f"{datetime.utcnow()} - Durdle bot is working")
 
+@client.event
+async def on_command_error(ctx, error) -> None:
+    pass
+
 @slash.slash(
     name = "guess",
     description = "Guess today's word",
@@ -79,24 +88,26 @@ async def _guess(ctx, word: str):
     global users
     if str(ctx.author) in users:
         if users[str(ctx.author)]["count"] == 6:
-            embed = create_error_embed(ctx, "Your 6 guesses are over.")
+            embed = create_error_embed("Your 6 guesses are over.")
             return await ctx.send(embed = embed)
         elif users[str(ctx.author)]["guessed"] == True:
-            embed = create_error_embed(ctx, "You have already guessed the word!")
+            embed = create_error_embed("You have already guessed the word!")
             return await ctx.send(embed = embed)
     if len(word) != 5:
-        embed = create_error_embed(ctx, "Only 5 letter words allowed.")
+        embed = create_error_embed("Only 5 letter words allowed.")
         return await ctx.send(embed = embed)
     if not english_dictionary.check(word):
-        embed = create_error_embed(ctx, "Word not found in dictionary.")
+        embed = create_error_embed("Word not found in dictionary.")
         return await ctx.send(embed = embed)
     result = check_guess(word, current_word)
     users = update_users_dict(ctx, users, result)
     if users[str(ctx.author)]["count"] == 6:
+        update_user_streak(str(ctx.author), False)
         final = create_final_result_embed(ctx, users)
         return await ctx.send(embed = final)
     elif word.lower() == current_word:
         users[str(ctx.author)]["guessed"] = True
+        update_user_streak(str(ctx.author), True)
         final = create_final_result_embed(ctx, users)
         return await ctx.send(embed = final)
     embed = create_guess_embed(ctx, users, result)
@@ -107,24 +118,26 @@ async def guess(ctx, word: str):
     global users
     if str(ctx.author) in users:
         if users[str(ctx.author)]["count"] == 6:
-            embed = create_error_embed(ctx, "Your 6 guesses are over.")
+            embed = create_error_embed("Your 6 guesses are over.")
             return await ctx.send(embed = embed)
         elif users[str(ctx.author)]["guessed"] == True:
-            embed = create_error_embed(ctx, "You have already guessed the word!")
+            embed = create_error_embed("You have already guessed the word!")
             return await ctx.send(embed = embed)
     if len(word) != 5:
-        embed = create_error_embed(ctx, "Only 5 letter words allowed.")
+        embed = create_error_embed("Only 5 letter words allowed.")
         return await ctx.send(embed = embed)
     if not english_dictionary.check(word):
-        embed = create_error_embed(ctx, "Word not found in dictionary.")
+        embed = create_error_embed("Word not found in dictionary.")
         return await ctx.send(embed = embed)
     result = check_guess(word, current_word)
     users = update_users_dict(ctx, users, result)
     if users[str(ctx.author)]["count"] == 6:
+        update_user_streak(str(ctx.author), False)
         final = create_final_result_embed(ctx, users)
         return await ctx.send(embed = final)
     elif word.lower() == current_word:
         users[str(ctx.author)]["guessed"] = True
+        update_user_streak(str(ctx.author), True)
         final = create_final_result_embed(ctx, users)
         return await ctx.send(embed = final)
     embed = create_guess_embed(ctx, users, result)

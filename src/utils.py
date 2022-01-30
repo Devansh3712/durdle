@@ -8,6 +8,7 @@ from typing import (
 )
 import random
 import discord
+from .database import get_user_streak
 
 def random_colour() -> int:
 	rgb: Callable[[], int] = lambda: random.randint(0, 255)
@@ -31,15 +32,19 @@ def create_final_result_embed(
     ctx,
     users: Dict[str, Dict[str, Any]]
 ) -> discord.Embed:
+    contents = [f"**Durdle {users[str(ctx.author)]['count']}/6**",]
+    streaks = get_user_streak(str(ctx.author))
+    if streaks:
+        contents.append(f"Streak {streaks[0]}/{streaks[1]}") # type: ignore
     embed = discord.Embed(
         title = "\n".join(users[str(ctx.author)]["tries"]),
         colour = discord.Colour.green(),
-        description = f"**Durdle {users[str(ctx.author)]['count']}/6**"
+        description = "\n".join(contents)
     )
     embed.set_thumbnail(url = str(ctx.author.avatar_url))
     return embed
 
-def create_error_embed(ctx, error: str) -> discord.Embed:
+def create_error_embed(error: str) -> discord.Embed:
     embed = discord.Embed(
         title = f"⛔ {error}",
         colour = discord.Colour.red()

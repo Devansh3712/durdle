@@ -52,12 +52,12 @@ def check_guess(guess: str, word: str) -> Tuple[str, str]:
             word_dict[word[idx]] -= 1
             guess_dict[guess[idx]] -= 1
         elif guess[idx] in word:
-            if guess_dict[guess[idx]] == word_dict[word[idx]]:
+            if guess_dict[guess[idx]] == word_dict[guess[idx]]:
                 chars.append(2)
-            elif guess_dict[guess[idx]] > word_dict[word[idx]]:
-                if word_dict[word[idx]] != 0:
+            elif guess_dict[guess[idx]] > word_dict[guess[idx]]:
+                if word_dict[guess[idx]] != 0:
                     chars.append(2)
-                    word_dict[word[idx]] -= 1
+                    word_dict[guess[idx]] -= 1
                 else:
                     chars.append(0)
             else:
