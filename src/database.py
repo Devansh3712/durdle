@@ -20,17 +20,27 @@ def update_user_streak(username: str, guessed: bool) -> None:
     if not user_data:
         updated_user_data = {
             "username": username,
-            "streak": 0,
-            "played": 1
+            "current_streak": 0,
+            "max_streak": 0,
+            "played": 0
         }
         if guessed:
-            updated_user_data["streak"] += 1 # type: ignore
+            updated_user_data["current_streak"] += 1 # type: ignore
+        else:
+            updated_user_data["current_streak"] = 0
+        updated_user_data["played"] += 1 # type: ignore
+        if updated_user_data["current_streak"] > updated_user_data["max_streak"]: # type: ignore
+            updated_user_data["max_streak"] = updated_user_data["current_streak"]
         user_collection.insert_one(updated_user_data)
     else:
         updated_user_data = deepcopy(user_data)
         if guessed:
-            updated_user_data["streak"] += 1 # type: ignore
+            updated_user_data["current_streak"] += 1 # type: ignore
+        else:
+            updated_user_data["current_streak"] = 0
         updated_user_data["played"] += 1 # type: ignore
+        if updated_user_data["current_streak"] > updated_user_data["max_streak"]: # type: ignore
+            updated_user_data["max_streak"] = updated_user_data["current_streak"]
         user_collection.update_one(
             user_data,
             { "$set": updated_user_data },
@@ -42,10 +52,11 @@ def get_user_streak(username: str) -> Tuple[int, int]:
     if not user_data:
         updated_user_data = {
             "username": username,
-            "streak": 0,
+            "current_streak": 0,
+            "max_streak": 0,
             "played": 0
         }
         user_collection.insert_one(updated_user_data)
         return (0, 0)
     else:
-        return (user_data["streak"], user_data["played"])
+        return (user_data["max_streak"], user_data["played"])

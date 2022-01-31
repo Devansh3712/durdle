@@ -166,9 +166,10 @@ async def _streak(ctx):
         value = f"{result[0]}/{result[1]}",
         inline = False
     )
+    percentage = (result[0] / result[1]) * 100 if result[1] else 0
     embed.add_field(
         name = "Accuracy",
-        value = f"{((result[0] / result[1]) * 100):.2f}%",
+        value = f"{percentage:.2f}%",
         inline = False
     )
     return await ctx.send(embed = embed)
@@ -191,9 +192,10 @@ async def streak(ctx):
         value = f"{result[0]}/{result[1]}",
         inline = False
     )
+    percentage = (result[0] / result[1]) * 100 if result[1] else 0
     embed.add_field(
         name = "Accuracy",
-        value = f"{((result[0] / result[1]) * 100):.2f}%",
+        value = f"{percentage:.2f}%",
         inline = False
     )
     return await ctx.send(embed = embed)

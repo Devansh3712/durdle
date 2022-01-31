@@ -35,14 +35,19 @@ def create_final_result_embed(
     ctx,
     users: Dict[str, Dict[str, Any]]
 ) -> discord.Embed:
-    contents = [f"**Durdle {users[str(ctx.author)]['count']}/6**",]
     streaks = get_user_streak(str(ctx.author))
-    if streaks:
-        contents.append(f"Streak {streaks[0]}/{streaks[1]}") # type: ignore
     embed = discord.Embed(
         title = "\n".join(users[str(ctx.author)]["tries"]),
         colour = discord.Colour.green(),
-        description = "\n".join(contents)
+        description = f"**Durdle {users[str(ctx.author)]['count']}/6**"
+    )
+    embed.add_field(
+        name = "Word",
+        value = users[str(ctx.author)]["word"]
+    )
+    embed.add_field(
+        name = "Max Streak",
+        value = f"{streaks[0]}/{streaks[1]}"
     )
     embed.set_thumbnail(url = str(ctx.author.avatar_url))
     return embed
@@ -68,9 +73,10 @@ def get_user_word(
     users: Dict[str, Dict[str, Any]]
 ) -> Dict[str, Dict[str, Any]]:
     if str(ctx.author) not in users:
-        users[str(ctx.author)] = {}
-        users[str(ctx.author)]["word"] = get_word()
-        users[str(ctx.author)]["count"] = 0
-        users[str(ctx.author)]["tries"] = []
-        users[str(ctx.author)]["guessed"] = False
+        users[str(ctx.author)] = {
+            "word": get_word(),
+            "count": 0,
+            "tries": [],
+            "guessed": False
+        }
     return users
