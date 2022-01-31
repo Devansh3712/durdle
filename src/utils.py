@@ -12,6 +12,7 @@ from .database import (
     get_user_streak,
     get_word
 )
+from .durdle import get_word_meaning
 
 def random_colour() -> int:
     """Generates a random hex colour code.
@@ -56,6 +57,7 @@ def create_final_result_embed(
         users (Dict[str, Dict[str, Any]]): Dictionary of users data.
     """
     streaks = get_user_streak(str(ctx.author))
+    meaning, usage = get_word_meaning(users[str(ctx.author)]["word"])
     embed = discord.Embed(
         title = "\n".join(users[str(ctx.author)]["tries"]),
         colour = discord.Colour.green(),
@@ -69,6 +71,17 @@ def create_final_result_embed(
         name = "Max Streak",
         value = f"{streaks[0]}/{streaks[1]}"
     )
+    if meaning and usage:
+        embed.add_field(
+            name = "Meaning",
+            value = meaning,
+            inline = False
+        )
+        embed.add_field(
+            name = "Usage",
+            value = usage,
+            inline = False
+        )
     embed.set_thumbnail(url = str(ctx.author.avatar_url))
     return embed
 
