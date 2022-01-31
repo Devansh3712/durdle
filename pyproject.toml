@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "durdle"
 version = "0.1.0"
-description = "Wordle discord bot"
+description = "Durdle - Wordle discord bot"
 authors = ["Your Name <you@example.com>"]
 license = "MIT"
 

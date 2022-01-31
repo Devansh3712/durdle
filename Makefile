@@ -3,7 +3,7 @@ PY = python
 all = run
 
 run:
-	$(PY) -m src.main
+	$(PY) main.py
 
 clean:
 	pyclean .

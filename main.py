@@ -16,13 +16,13 @@ from discord_slash.utils.manage_commands import (
     create_option
 )
 import enchant
-from .config import settings
-from .database import (
+from src.config import settings
+from src.database import (
     get_user_streak,
     update_user_streak
 )
-from .durdle import check_guess
-from .utils import (
+from src.durdle import check_guess
+from src.utils import (
     create_guess_embed,
     create_final_result_embed,
     create_error_embed,
@@ -62,7 +62,6 @@ async def _reset_dict() -> None:
 @client.event
 async def on_ready() -> None:
     """Generate a list of guilds of durdle bot"""
-    global guilds
     guilds = [guild for guild in client.guilds]
     print(f"{datetime.utcnow()} - Durdle bot is working")
 
@@ -221,6 +220,102 @@ async def streak(ctx):
         name = "Accuracy",
         value = f"{percentage:.2f}%",
         inline = False
+    )
+    return await ctx.send(embed = embed)
+
+@slash.slash(
+    name = "help",
+    description = "Durdle commands",
+    guild_ids = guilds
+)
+async def _help(ctx):
+    """Returns an embed with all commands of Durdle bot"""
+    embed = discord.Embed(
+        title = "Durdle Commands",
+        colour = random_colour()
+    )
+    embed.set_thumbnail(url = "https://www.dailywordle.com/images/wordle_og_1200x630.png")
+    embed.add_field(
+        name = "Guess today's word",
+        value = "`/guess`"
+    )
+    embed.add_field(
+        name = "Get your max durdle streak",
+        value = "`/streak`"
+    )
+    embed.add_field(
+        name = "Information about durdle bot",
+        value = "`/info`"
+    )
+    return await ctx.send(embed = embed)
+
+@client.command()
+async def help(ctx):
+    embed = discord.Embed(
+        title = "Durdle Commands",
+        colour = random_colour()
+    )
+    embed.set_thumbnail(url = "https://www.dailywordle.com/images/wordle_og_1200x630.png")
+    embed.add_field(
+        name = "Guess today's word",
+        value = "`/guess`"
+    )
+    embed.add_field(
+        name = "Get your max durdle streak",
+        value = "`/streak`"
+    )
+    return await ctx.send(embed = embed)
+
+@slash.slash(
+    name = "info",
+    description = "Durdle bot information",
+    guild_ids = guilds
+)
+async def _info(ctx):
+    """Returns an embed with information about Durdle bot"""
+    embed = discord.Embed(
+        title = "Durdle Information",
+        colour = random_colour(),
+        description = "Durdle is a Discord bot inspired by the popular internet game [Wordle](https://powerlanguage.co.uk/wordle/)."
+    )
+    embed.set_thumbnail(url = "https://www.dailywordle.com/images/wordle_og_1200x630.png")
+    embed.add_field(
+        name = "How to play",
+        value = "Each player has six tries to guess a target five-letter word. A new word is generated for every user each day.",
+        inline = False
+    )
+    embed.add_field(
+        name = "Creators",
+        value = "[Devansh Singh](https://github.com/Devansh3712), [Kshitij Kapoor](https://github.com/kshitijk4poor)",
+        inline = False
+    )
+    embed.add_field(
+        name = "Made with",
+        value = "Python, MongoDB, Heroku"
+    )
+    return await ctx.send(embed = embed)
+
+@client.command()
+async def info(ctx):
+    embed = discord.Embed(
+        title = "Durdle Information",
+        colour = random_colour(),
+        description = "Durdle is a Discord bot inspired by the popular internet game [Wordle](https://powerlanguage.co.uk/wordle/)."
+    )
+    embed.set_thumbnail(url = "https://www.dailywordle.com/images/wordle_og_1200x630.png")
+    embed.add_field(
+        name = "How to play",
+        value = "Each player has six tries to guess a target five-letter word. A new word is generated for every user each day.",
+        inline = False
+    )
+    embed.add_field(
+        name = "Creators",
+        value = "[Devansh Singh](https://github.com/Devansh3712), [Kshitij Kapoor](https://github.com/kshitijk4poor)",
+        inline = False
+    )
+    embed.add_field(
+        name = "Made with",
+        value = "Python, MongoDB, Heroku"
     )
     return await ctx.send(embed = embed)
 
