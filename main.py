@@ -234,7 +234,7 @@ async def _help(ctx):
         title = "Durdle Commands",
         colour = random_colour()
     )
-    embed.set_thumbnail(url = "https://github.com/kshitijk4poor/durdle/blob/main/resources/durdle.png?raw=true")
+    embed.set_thumbnail(url = str(client.user.avatar_url))
     embed.add_field(
         name = "Guess today's word",
         value = "`/guess`"
@@ -255,7 +255,7 @@ async def help(ctx):
         title = "Durdle Commands",
         colour = random_colour()
     )
-    embed.set_thumbnail(url = "https://github.com/kshitijk4poor/durdle/blob/main/resources/durdle.png?raw=true")
+    embed.set_thumbnail(url = str(client.user.avatar_url))
     embed.add_field(
         name = "Guess today's word",
         value = "`/guess`"
@@ -278,7 +278,7 @@ async def _info(ctx):
         colour = random_colour(),
         description = "Durdle is a Discord bot inspired by the popular internet game [Wordle](https://powerlanguage.co.uk/wordle/)."
     )
-    embed.set_thumbnail(url = "https://github.com/kshitijk4poor/durdle/blob/main/resources/durdle.png?raw=true")
+    embed.set_thumbnail(url = str(client.user.avatar_url))
     embed.add_field(
         name = "How to play",
         value = "Each player has six tries to guess a target five-letter word. A new word is generated for every user each day.",
@@ -302,7 +302,7 @@ async def info(ctx):
         colour = random_colour(),
         description = "Durdle is a Discord bot inspired by the popular internet game [Wordle](https://powerlanguage.co.uk/wordle/)."
     )
-    embed.set_thumbnail(url = "https://github.com/kshitijk4poor/durdle/blob/main/resources/durdle.png?raw=true")
+    embed.set_thumbnail(url = str(client.user.avatar_url))
     embed.add_field(
         name = "How to play",
         value = "Each player has six tries to guess a target five-letter word. A new word is generated for every user each day.",
