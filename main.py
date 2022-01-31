@@ -44,6 +44,7 @@ client.remove_command("help")
 
 guilds: List[int] = []
 users: Dict[str, Dict[str, Any]] = {}
+print(enchant.list_languages())
 english_dictionary = enchant.Dict("en_US")
 
 async def _reset_dict() -> None:
