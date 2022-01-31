@@ -292,7 +292,19 @@ async def _info(ctx):
     )
     embed.add_field(
         name = "Made with",
-        value = "Python, MongoDB, Heroku"
+        value = "Python, MongoDB, Heroku",
+        inline = False
+    )
+    features = [
+        "• Different word for every user",
+        "• Word resets at 0000 hours GMT",
+        "• Provides the meaning and usasge of the word (if found on [Word API](https://dictionaryapi.dev/))",
+        "• Keeps count of durdle play streak of every user"
+    ]
+    embed.add_field(
+        name = "Features",
+        value = "\n".join(features),
+        inline = False
     )
     return await ctx.send(embed = embed)
 
@@ -316,9 +328,20 @@ async def info(ctx):
     )
     embed.add_field(
         name = "Made with",
-        value = "Python, MongoDB, Heroku"
+        value = "Python, MongoDB, Heroku",
+        inline = False
     )
-    return await ctx.send(embed = embed)
+    features = [
+        "• Different word for every user",
+        "• Word resets at 0000 hours GMT",
+        "• Provides the meaning and usasge of the word (if found on [Word API](https://dictionaryapi.dev/))",
+        "• Keeps count of durdle play streak of every user"
+    ]
+    embed.add_field(
+        name = "Features",
+        value = "\n".join(features),
+        inline = False
+    )
 
 if __name__ == "__main__":
     client.loop.create_task(_reset_dict())
