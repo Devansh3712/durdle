@@ -10,12 +10,36 @@ word_collection = db["word-list"]
 user_collection = db["users"]
 
 def get_word() -> str:
+    """Fetch a random word from the word list
+    in the durdle database.
+
+    Returns:
+        str: Word fetched from the database.
+    """
     word_list = list(word_collection.find({}))
     _id = randint(0, len(word_list))
     word = word_list[_id]["word"]
     return word
 
 def update_user_streak(username: str, guessed: bool) -> None:
+    """Update a user's streak in the durdle database.
+    Increments the current streak by 1 if user guessed the
+    word else set to 0.
+    
+    Maximum streak is the max(current_streak, max_streak).
+    The document schema for a user is as follows:
+    
+    {
+        "username": username,
+        "current_streak": 0,
+        "max_streak": 0,
+        "played": 0
+    }
+
+    Args:
+        username (str): User whose data has to be updated.
+        guessed (bool): Whether the user was able to guess the word or not.
+    """
     user_data = user_collection.find_one({ "username": username })
     if not user_data:
         updated_user_data = {
@@ -48,6 +72,16 @@ def update_user_streak(username: str, guessed: bool) -> None:
         )
 
 def get_user_streak(username: str) -> Tuple[int, int]:
+    """Fetch a user's maximum streak from the database
+    if it exists else create a user document.
+
+    Args:
+        username (str): User whose streak has to be fetched.
+
+    Returns:
+        Tuple[int, int]: Tuple of maximum streak and number of
+        times they played durdle.
+    """
     user_data = user_collection.find_one({ "username": username })
     if not user_data:
         updated_user_data = {

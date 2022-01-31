@@ -18,7 +18,6 @@ from discord_slash.utils.manage_commands import (
 import enchant
 from .config import settings
 from .database import (
-    get_word,
     get_user_streak,
     update_user_streak
 )
@@ -45,10 +44,11 @@ client.remove_command("help")
 
 guilds: List[int] = []
 users: Dict[str, Dict[str, Any]] = {}
-current_word: str = get_word()
 english_dictionary = enchant.Dict("en_US")
 
 async def _reset_dict() -> None:
+    """Clear the global users dictionary at 0000 hours GMT"""
+    global users
     await client.wait_until_ready()
     while not client.is_closed():
         current_time = datetime.utcnow().strftime("%H%M")
@@ -61,6 +61,8 @@ async def _reset_dict() -> None:
 
 @client.event
 async def on_ready() -> None:
+    """Generate a list of guilds of durdle bot"""
+    global guilds
     guilds = [guild for guild in client.guilds]
     print(f"{datetime.utcnow()} - Durdle bot is working")
 
@@ -82,6 +84,26 @@ async def on_command_error(ctx, error) -> None:
     ]
 )
 async def _guess(ctx, word: str):
+    """Guess a 5 letter word in 6 tries. Different word
+    is generated for every user.
+
+    A dictionary is created for every user with the following
+    schema:
+
+    {
+        "word": get_word(),
+        "count": 0,
+        "tries": [],
+        "guessed": False
+    }
+    
+    If the user guesses the word under 6 guesses, their durdle
+    streak in database gets incremented by 1 else the streak becomes
+    0.
+
+    Args:
+        word (str): Word guessed by the user.
+    """
     global users
     if str(ctx.author) in users:
         if users[str(ctx.author)]["count"] == 6:
@@ -150,6 +172,8 @@ async def guess(ctx, word: str):
     guild_ids = guilds
 )
 async def _streak(ctx):
+    """Fetch current user's maximum durdle streak from
+    the database"""
     result = get_user_streak(str(ctx.author))
     embed = discord.Embed(
         title = "Durdle Streak",

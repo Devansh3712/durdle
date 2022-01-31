@@ -40,6 +40,22 @@ letters: Dict[str, str] = {
 }
 
 def check_guess(guess: str, word: str) -> Tuple[str, str]:
+    """Check a user's guess with the actual word.
+    
+    If a character in guessed word and the actual word is
+    at the correct spot, 🟩 is added to the result, else
+    if a character in guessed word is present in the actual
+    word but at the wrong spot, 🟨 is added to the result else
+    ⬜ is added to the result.
+
+    Args:
+        guess (str): Word guessed by the user.
+        word (str): Word generated for the user.
+
+    Returns:
+        Tuple[str, str]: Tuple of result_emojis and emojified
+        character string of guessed word.
+    """
     guess = guess.lower()
     result_emojis: str = ""
     result_string: str = " ".join([letters[char] for char in guess])
