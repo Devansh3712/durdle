@@ -11,11 +11,11 @@ python = "^3.10"
 mypy = "^0.931"
 discord-py-slash-command = "^3.0.3"
 asyncio = "^3.4.3"
-pyenchant = "^3.2.2"
 pymongo = {extras = ["srv"], version = "^4.0.1"}
 pydantic = {extras = ["dotenv"], version = "^1.9.0"}
 requests = "^2.27.1"
 types-requests = "^2.27.7"
+pyspellchecker = "^0.6.3"
 
 [tool.poetry.dev-dependencies]
 

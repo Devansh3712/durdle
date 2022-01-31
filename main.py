@@ -15,7 +15,7 @@ from discord_slash.utils.manage_commands import (
     create_choice,
     create_option
 )
-import enchant
+from spellchecker import SpellChecker
 from src.config import settings
 from src.database import (
     get_user_streak,
@@ -44,7 +44,8 @@ client.remove_command("help")
 
 guilds: List[int] = []
 users: Dict[str, Dict[str, Any]] = {}
-english_dictionary = enchant.Dict("en_US")
+spell_checker = SpellChecker()
+english_dictionary = lambda word: word == spell_checker.correction(word)
 
 async def _reset_dict() -> None:
     """Clear the global users dictionary at 0000 hours GMT"""
@@ -114,7 +115,7 @@ async def _guess(ctx, word: str):
     if len(word) != 5:
         embed = create_error_embed("Only 5 letter words allowed.")
         return await ctx.send(embed = embed)
-    if not english_dictionary.check(word):
+    if not english_dictionary(word):
         embed = create_error_embed("Word not found in dictionary.")
         return await ctx.send(embed = embed)
     if str(ctx.author) not in users:
@@ -146,7 +147,7 @@ async def guess(ctx, word: str):
     if len(word) != 5:
         embed = create_error_embed("Only 5 letter words allowed.")
         return await ctx.send(embed = embed)
-    if not english_dictionary.check(word):
+    if not english_dictionary(word):
         embed = create_error_embed("Word not found in dictionary.")
         return await ctx.send(embed = embed)
     if str(ctx.author) not in users:

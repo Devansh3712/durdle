@@ -13,8 +13,8 @@ multidict==6.0.2
 mypy-extensions==0.4.3
 mypy==0.931
 pydantic==1.9.0
-pyenchant==3.2.2
 pymongo==4.0.1
+pyspellchecker==0.6.3
 python-dotenv==0.19.2
 requests==2.27.1
 tomli==2.0.0
