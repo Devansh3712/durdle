@@ -108,63 +108,54 @@ async def _guess(ctx, word: str):
     if str(ctx.author) in users:
         if users[str(ctx.author)]["count"] == 6:
             embed = create_error_embed("Your 6 guesses are over.")
-            return await ctx.send(embed = embed)
+            await ctx.send(embed = embed)
         elif users[str(ctx.author)]["guessed"] == True:
             embed = create_error_embed("You have already guessed the word!")
-            return await ctx.send(embed = embed)
-    if len(word) != 5:
-        embed = create_error_embed("Only 5 letter words allowed.")
-        return await ctx.send(embed = embed)
-    if not english_dictionary(word):
-        embed = create_error_embed("Word not found in dictionary.")
-        return await ctx.send(embed = embed)
-    if str(ctx.author) not in users:
-        users = get_user_word(ctx, users)
-    result = check_guess(word, users[str(ctx.author)]["word"])
-    users = update_users_dict(ctx, users, result)
-    if users[str(ctx.author)]["count"] == 6:
-        update_user_streak(str(ctx.author), False)
-        final = create_final_result_embed(ctx, users)
-        return await ctx.send(embed = final)
-    elif word.lower() == users[str(ctx.author)]["word"]:
-        users[str(ctx.author)]["guessed"] = True
-        update_user_streak(str(ctx.author), True)
-        final = create_final_result_embed(ctx, users)
-        return await ctx.send(embed = final)
-    embed = create_guess_embed(ctx, users, result)
-    return await ctx.send(embed = embed)
-
-@client.command()
-async def guess(ctx, word: str):
-    global users
-    if str(ctx.author) in users:
-        if users[str(ctx.author)]["count"] == 6:
-            embed = create_error_embed("Your 6 guesses are over.")
-            return await ctx.send(embed = embed)
-        elif users[str(ctx.author)]["guessed"] == True:
-            embed = create_error_embed("You have already guessed the word!")
-            return await ctx.send(embed = embed)
-    if len(word) != 5:
-        embed = create_error_embed("Only 5 letter words allowed.")
-        return await ctx.send(embed = embed)
-    if not english_dictionary(word):
-        embed = create_error_embed("Word not found in dictionary.")
-        return await ctx.send(embed = embed)
-    if str(ctx.author) not in users:
-        users = get_user_word(ctx, users)
-    result = check_guess(word, users[str(ctx.author)]["word"])
-    users = update_users_dict(ctx, users, result)
-    if users[str(ctx.author)]["count"] == 6:
-        update_user_streak(str(ctx.author), False)
-        final = create_final_result_embed(ctx, users)
-        return await ctx.send(embed = final)
-    elif word.lower() == users[str(ctx.author)]["word"]:
-        users[str(ctx.author)]["guessed"] = True
-        update_user_streak(str(ctx.author), True)
-        final = create_final_result_embed(ctx, users)
-        return await ctx.send(embed = final)
-    embed = create_guess_embed(ctx, users, result)
-    return await ctx.send(embed = embed)
+            await ctx.send(embed = embed)
+        elif len(word) != 5:
+            embed = create_error_embed("Only 5 letter words allowed.")
+            await ctx.send(embed = embed)
+        elif not english_dictionary(word) and word != users[str(ctx.author)]["word"]:
+            embed = create_error_embed("Word not found in dictionary.")
+            await ctx.send(embed = embed)
+        else:
+            result = check_guess(word, users[str(ctx.author)]["word"])
+            users = update_users_dict(ctx, users, result)
+            if users[str(ctx.author)]["count"] == 6:
+                update_user_streak(str(ctx.author), False)
+                final = create_final_result_embed(ctx, users)
+                await ctx.send(embed = final)
+            elif word.lower() == users[str(ctx.author)]["word"]:
+                users[str(ctx.author)]["guessed"] = True
+                update_user_streak(str(ctx.author), True)
+                final = create_final_result_embed(ctx, users)
+                await ctx.send(embed = final)
+            else:
+                embed = create_guess_embed(ctx, users, result)
+                await ctx.send(embed = embed)
+    else:
+        if len(word) != 5:
+            embed = create_error_embed("Only 5 letter words allowed.")
+            await ctx.send(embed = embed)
+        elif not english_dictionary(word):
+            embed = create_error_embed("Word not found in dictionary.")
+            await ctx.send(embed = embed)
+        else:
+            users = get_user_word(ctx, users)
+            result = check_guess(word, users[str(ctx.author)]["word"])
+            users = update_users_dict(ctx, users, result)
+            if users[str(ctx.author)]["count"] == 6:
+                update_user_streak(str(ctx.author), False)
+                final = create_final_result_embed(ctx, users)
+                await ctx.send(embed = final)
+            elif word.lower() == users[str(ctx.author)]["word"]:
+                users[str(ctx.author)]["guessed"] = True
+                update_user_streak(str(ctx.author), True)
+                final = create_final_result_embed(ctx, users)
+                await ctx.send(embed = final)
+            else:
+                embed = create_guess_embed(ctx, users, result)
+                await ctx.send(embed = embed)
 
 @slash.slash(
     name = "streak",
@@ -196,33 +187,7 @@ async def _streak(ctx):
         value = f"{percentage:.2f}%",
         inline = False
     )
-    return await ctx.send(embed = embed)
-
-@client.command()
-async def streak(ctx):
-    result = get_user_streak(str(ctx.author))
-    embed = discord.Embed(
-        title = "Durdle Streak",
-        colour = random_colour()
-    )
-    embed.set_thumbnail(url = str(ctx.author.avatar_url))
-    embed.add_field(
-        name = "Username",
-        value = str(ctx.author),
-        inline = False
-    )
-    embed.add_field(
-        name = "Max Streak",
-        value = f"{result[0]}/{result[1]}",
-        inline = False
-    )
-    percentage = (result[0] / result[1]) * 100 if result[1] else 0
-    embed.add_field(
-        name = "Accuracy",
-        value = f"{percentage:.2f}%",
-        inline = False
-    )
-    return await ctx.send(embed = embed)
+    await ctx.send(embed = embed)
 
 @slash.slash(
     name = "help",
@@ -248,24 +213,7 @@ async def _help(ctx):
         name = "Information about durdle bot",
         value = "`/info`"
     )
-    return await ctx.send(embed = embed)
-
-@client.command()
-async def help(ctx):
-    embed = discord.Embed(
-        title = "Durdle Commands",
-        colour = random_colour()
-    )
-    embed.set_thumbnail(url = str(client.user.avatar_url))
-    embed.add_field(
-        name = "Guess today's word",
-        value = "`/guess`"
-    )
-    embed.add_field(
-        name = "Get your max durdle streak",
-        value = "`/streak`"
-    )
-    return await ctx.send(embed = embed)
+    await ctx.send(embed = embed)
 
 @slash.slash(
     name = "info",
@@ -306,42 +254,7 @@ async def _info(ctx):
         value = "\n".join(features),
         inline = False
     )
-    return await ctx.send(embed = embed)
-
-@client.command()
-async def info(ctx):
-    embed = discord.Embed(
-        title = "Durdle Information",
-        colour = random_colour(),
-        description = "Durdle is a Discord bot inspired by the popular internet game [Wordle](https://powerlanguage.co.uk/wordle/)."
-    )
-    embed.set_thumbnail(url = str(client.user.avatar_url))
-    embed.add_field(
-        name = "How to play",
-        value = "Each player has six tries to guess a target five-letter word. A new word is generated for every user each day.",
-        inline = False
-    )
-    embed.add_field(
-        name = "Creators",
-        value = "[Devansh Singh](https://github.com/Devansh3712), [Kshitij Kapoor](https://github.com/kshitijk4poor)",
-        inline = False
-    )
-    embed.add_field(
-        name = "Made with",
-        value = "Python, MongoDB, Heroku",
-        inline = False
-    )
-    features = [
-        "• Different word for every user",
-        "• Word resets at 0000 hours GMT",
-        "• Provides the meaning and usasge of the word (if found on [Word API](https://dictionaryapi.dev/))",
-        "• Keeps count of durdle play streak of every user"
-    ]
-    embed.add_field(
-        name = "Features",
-        value = "\n".join(features),
-        inline = False
-    )
+    await ctx.send(embed = embed)
 
 if __name__ == "__main__":
     client.loop.create_task(_reset_dict())
