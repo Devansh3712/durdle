@@ -7,22 +7,15 @@ from datetime import datetime
 import asyncio
 import discord
 from discord.ext import commands
-from discord_slash import (
-    SlashCommand,
-    SlashContext
-)
-from discord_slash.utils.manage_commands import (
-    create_choice,
-    create_option
-)
+from discord.commands import slash_command
 from spellchecker import SpellChecker
-from src.config import settings
-from src.database import (
+from durdle.config import settings
+from durdle.database import (
     get_user_streak,
     update_user_streak
 )
-from src.durdle import check_guess
-from src.utils import (
+from durdle.durdle import check_guess
+from durdle.utils import (
     create_guess_embed,
     create_final_result_embed,
     create_error_embed,
@@ -32,15 +25,8 @@ from src.utils import (
 )
 
 token = settings.token
-client = commands.Bot(
-    command_prefix = "$d ",
-    activity = discord.Activity(
-        type = discord.ActivityType.playing,
-        name = "wordle"
-    )
-)
-slash = SlashCommand(client, sync_commands = True)
-client.remove_command("help")
+client = commands.Bot()
+client.help_command = None
 
 guilds: List[int] = []
 users: Dict[str, Dict[str, Any]] = {}
@@ -63,25 +49,18 @@ async def _reset_dict() -> None:
 @client.event
 async def on_ready() -> None:
     """Generate a list of guilds of durdle bot"""
-    guilds = [guild for guild in client.guilds]
+    global guilds
+    guilds = [int(guild.id) for guild in client.guilds]
     print(f"{datetime.utcnow()} - Durdle bot is working")
 
 @client.event
 async def on_command_error(ctx, error) -> None:
     pass
 
-@slash.slash(
+@client.slash_command(
     name = "guess",
     description = "Guess today's word",
-    guild_ids = guilds,
-    options = [
-        create_option(
-            name = "word",
-            description = "Enter the word",
-            option_type = 3,
-            required = True
-        )
-    ]
+    guild_ids = [759595789591773196]
 )
 async def _guess(ctx, word: str):
     """Guess a 5 letter word in 6 tries. Different word
@@ -108,38 +87,38 @@ async def _guess(ctx, word: str):
     if str(ctx.author) in users:
         if users[str(ctx.author)]["count"] == 6:
             embed = create_error_embed("Your 6 guesses are over.")
-            await ctx.send(embed = embed)
+            await ctx.respond(embed = embed)
         elif users[str(ctx.author)]["guessed"] == True:
             embed = create_error_embed("You have already guessed the word!")
-            await ctx.send(embed = embed)
+            await ctx.respond(embed = embed)
         elif len(word) != 5:
             embed = create_error_embed("Only 5 letter words allowed.")
-            await ctx.send(embed = embed)
+            await ctx.respond(embed = embed)
         elif not english_dictionary(word) and word != users[str(ctx.author)]["word"]:
             embed = create_error_embed("Word not found in dictionary.")
-            await ctx.send(embed = embed)
+            await ctx.respond(embed = embed)
         else:
             result = check_guess(word, users[str(ctx.author)]["word"])
             users = update_users_dict(ctx, users, result)
             if users[str(ctx.author)]["count"] == 6:
                 update_user_streak(str(ctx.author), False)
                 final = create_final_result_embed(ctx, users)
-                await ctx.send(embed = final)
+                await ctx.respond(embed = final)
             elif word.lower() == users[str(ctx.author)]["word"]:
                 users[str(ctx.author)]["guessed"] = True
                 update_user_streak(str(ctx.author), True)
                 final = create_final_result_embed(ctx, users)
-                await ctx.send(embed = final)
+                await ctx.respond(embed = final)
             else:
                 embed = create_guess_embed(ctx, users, result)
-                await ctx.send(embed = embed)
+                await ctx.respond(embed = embed)
     else:
         if len(word) != 5:
             embed = create_error_embed("Only 5 letter words allowed.")
-            await ctx.send(embed = embed)
+            await ctx.respond(embed = embed)
         elif not english_dictionary(word):
             embed = create_error_embed("Word not found in dictionary.")
-            await ctx.send(embed = embed)
+            await ctx.respond(embed = embed)
         else:
             users = get_user_word(ctx, users)
             result = check_guess(word, users[str(ctx.author)]["word"])
@@ -147,20 +126,20 @@ async def _guess(ctx, word: str):
             if users[str(ctx.author)]["count"] == 6:
                 update_user_streak(str(ctx.author), False)
                 final = create_final_result_embed(ctx, users)
-                await ctx.send(embed = final)
+                await ctx.respond(embed = final)
             elif word.lower() == users[str(ctx.author)]["word"]:
                 users[str(ctx.author)]["guessed"] = True
                 update_user_streak(str(ctx.author), True)
                 final = create_final_result_embed(ctx, users)
-                await ctx.send(embed = final)
+                await ctx.respond(embed = final)
             else:
                 embed = create_guess_embed(ctx, users, result)
-                await ctx.send(embed = embed)
+                await ctx.respond(embed = embed)
 
-@slash.slash(
+@client.slash_command(
     name = "streak",
     description = "Your durdle streak",
-    guild_ids = guilds
+    guild_ids = [759595789591773196]
 )
 async def _streak(ctx):
     """Fetch current user's maximum durdle streak from
@@ -170,7 +149,7 @@ async def _streak(ctx):
         title = "Durdle Streak",
         colour = random_colour()
     )
-    embed.set_thumbnail(url = str(ctx.author.avatar_url))
+    embed.set_thumbnail(url = str(ctx.author.display_avatar))
     embed.add_field(
         name = "Username",
         value = str(ctx.author),
@@ -187,12 +166,12 @@ async def _streak(ctx):
         value = f"{percentage:.2f}%",
         inline = False
     )
-    await ctx.send(embed = embed)
+    await ctx.respond(embed = embed)
 
-@slash.slash(
+@client.slash_command(
     name = "help",
     description = "Durdle commands",
-    guild_ids = guilds
+    guild_ids = [759595789591773196]
 )
 async def _help(ctx):
     """Returns an embed with all commands of Durdle bot"""
@@ -200,7 +179,7 @@ async def _help(ctx):
         title = "Durdle Commands",
         colour = random_colour()
     )
-    embed.set_thumbnail(url = str(client.user.avatar_url))
+    embed.set_thumbnail(url = str(client.user.display_avatar))
     embed.add_field(
         name = "Guess today's word",
         value = "`/guess`"
@@ -213,12 +192,12 @@ async def _help(ctx):
         name = "Information about durdle bot",
         value = "`/info`"
     )
-    await ctx.send(embed = embed)
+    await ctx.respond(embed = embed)
 
-@slash.slash(
+@client.slash_command(
     name = "info",
     description = "Durdle bot information",
-    guild_ids = guilds
+    guild_ids = [759595789591773196]
 )
 async def _info(ctx):
     """Returns an embed with information about Durdle bot"""
@@ -227,7 +206,7 @@ async def _info(ctx):
         colour = random_colour(),
         description = "Durdle is a Discord bot inspired by the popular internet game [Wordle](https://powerlanguage.co.uk/wordle/)."
     )
-    embed.set_thumbnail(url = str(client.user.avatar_url))
+    embed.set_thumbnail(url = str(client.user.display_avatar))
     embed.add_field(
         name = "How to play",
         value = "Each player has six tries to guess a target five-letter word. A new word is generated for every user each day.",
@@ -254,7 +233,7 @@ async def _info(ctx):
         value = "\n".join(features),
         inline = False
     )
-    await ctx.send(embed = embed)
+    await ctx.respond(embed = embed)
 
 if __name__ == "__main__":
     client.loop.create_task(_reset_dict())

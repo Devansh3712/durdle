@@ -9,7 +9,7 @@ clean:
 	pyclean .
 
 lint:
-	mypy src
+	mypy durdle
 
 requirements:
 	poetry export -f requirements.txt --output requirements.txt --without-hashes
