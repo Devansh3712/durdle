@@ -32,7 +32,6 @@ token = settings.token
 client = commands.Bot()
 client.help_command = None
 
-guilds: List[int] = []
 users: Dict[str, Dict[str, Any]] = {}
 spell_checker = SpellChecker()
 english_dictionary = lambda word: word == spell_checker.correction(word)
@@ -53,8 +52,6 @@ async def _reset_dict() -> None:
 @client.event
 async def on_ready() -> None:
     """Generate a list of guilds of durdle bot"""
-    global guilds
-    guilds = [int(guild.id) for guild in client.guilds]
     print(f"{datetime.utcnow()} - Durdle bot is working")
 
 @client.event
@@ -63,8 +60,7 @@ async def on_command_error(ctx, error) -> None:
 
 @client.slash_command(
     name = "guess",
-    description = "Guess today's word",
-    guild_ids = guilds
+    description = "Guess today's word"
 )
 async def _guess(ctx, word: str):
     """Guess a 5 letter word in 6 tries. Different word
@@ -142,8 +138,7 @@ async def _guess(ctx, word: str):
 
 @client.slash_command(
     name = "streak",
-    description = "Your durdle streak",
-    guild_ids = guilds
+    description = "Your durdle streak"
 )
 async def _streak(ctx):
     """Fetch current user's maximum durdle streak from
@@ -174,8 +169,7 @@ async def _streak(ctx):
 
 @client.slash_command(
     name = "help",
-    description = "Durdle commands",
-    guild_ids = guilds
+    description = "Durdle commands"
 )
 async def _help(ctx):
     """Returns an embed with all commands of Durdle bot"""
@@ -200,8 +194,7 @@ async def _help(ctx):
 
 @client.slash_command(
     name = "info",
-    description = "Durdle bot information",
-    guild_ids = guilds
+    description = "Durdle bot information"
 )
 async def _info(ctx):
     """Returns an embed with information about Durdle bot"""
