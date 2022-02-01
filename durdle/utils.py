@@ -42,7 +42,7 @@ def create_guess_embed(
         colour = random_colour(),
         description = f"**Durdle {users[str(ctx.author)]['count']}/6**"
     )
-    embed.set_thumbnail(url = str(ctx.author.avatar_url))
+    embed.set_thumbnail(url = str(ctx.author.display_avatar))
     return embed
 
 def create_final_result_embed(
@@ -82,7 +82,7 @@ def create_final_result_embed(
             value = usage,
             inline = False
         )
-    embed.set_thumbnail(url = str(ctx.author.avatar_url))
+    embed.set_thumbnail(url = str(ctx.author.display_avatar))
     return embed
 
 def create_error_embed(error: str) -> discord.Embed:

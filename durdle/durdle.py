@@ -63,28 +63,37 @@ def check_guess(guess: str, word: str) -> Tuple[str, str]:
     chars: List[int] = []
     guess_dict: Dict[str, int] = dict(Counter(guess))
     word_dict: Dict[str, int] = dict(Counter(word))
-    for idx in range(5):
-        if guess[idx] == word[idx]:
+    for i, j in zip(guess, word):
+        if i == j:
             chars.append(1)
-            word_dict[word[idx]] -= 1
-            guess_dict[guess[idx]] -= 1
-        elif guess[idx] in word:
-            if guess_dict[guess[idx]] == word_dict[guess[idx]]:
-                chars.append(2)
-            elif guess_dict[guess[idx]] > word_dict[guess[idx]]:
-                if word_dict[guess[idx]] != 0:
-                    chars.append(2)
-                    word_dict[guess[idx]] -= 1
-                else:
-                    chars.append(0)
-            else:
-                if guess_dict[guess[idx]] != 0:
-                    chars.append(2)
-                    guess_dict[guess[idx]] -= 1
-                else:
-                    chars.append(0)
+            guess_dict[i] -= 1
+            word_dict[j] -= 1
         else:
             chars.append(0)
+    for idx in range(5):
+        if chars[idx] != 1 and (guess[idx] in word) and word_dict[guess[idx]] != 0:
+            if guess_dict[guess[idx]] == word_dict[guess[idx]]:
+                chars[idx] = 2
+                word_dict[guess[idx]] -= 1
+                guess_dict[guess[idx]] -= 1
+            elif guess_dict[guess[idx]] > word_dict[guess[idx]]:
+                if word_dict[guess[idx]] != 0:
+                    chars[idx] = 2
+                    word_dict[guess[idx]] -= 1
+                    guess_dict[guess[idx]] -= 1
+                else:
+                    chars[idx] = 0
+                    guess_dict[guess[idx]] -= 1
+            elif guess_dict[guess[idx]] < word_dict[guess[idx]]:
+                if guess_dict[guess[idx]] != 0:
+                    chars[idx] = 2
+                    word_dict[guess[idx]] -= 1
+                    guess_dict[guess[idx]] -= 1
+                else:
+                    chars[idx] = 0
+                    guess_dict[guess[idx]] -= 1
+            else:
+                chars[idx] = 0
     for char in chars:
         result_emojis += emojis[char] + " "
     return (result_emojis[:-1], result_string)
