@@ -6,8 +6,12 @@ from typing import (
 from datetime import datetime
 import asyncio
 import discord
-from discord.ext import commands
 from discord.commands import slash_command
+from discord.ext import commands
+from discord.ui import (
+    Button,
+    View
+)
 from spellchecker import SpellChecker
 from durdle.config import settings
 from durdle.database import (
@@ -60,7 +64,7 @@ async def on_command_error(ctx, error) -> None:
 @client.slash_command(
     name = "guess",
     description = "Guess today's word",
-    guild_ids = [759595789591773196]
+    guild_ids = guilds
 )
 async def _guess(ctx, word: str):
     """Guess a 5 letter word in 6 tries. Different word
@@ -139,7 +143,7 @@ async def _guess(ctx, word: str):
 @client.slash_command(
     name = "streak",
     description = "Your durdle streak",
-    guild_ids = [759595789591773196]
+    guild_ids = guilds
 )
 async def _streak(ctx):
     """Fetch current user's maximum durdle streak from
@@ -171,7 +175,7 @@ async def _streak(ctx):
 @client.slash_command(
     name = "help",
     description = "Durdle commands",
-    guild_ids = [759595789591773196]
+    guild_ids = guilds
 )
 async def _help(ctx):
     """Returns an embed with all commands of Durdle bot"""
@@ -197,7 +201,7 @@ async def _help(ctx):
 @client.slash_command(
     name = "info",
     description = "Durdle bot information",
-    guild_ids = [759595789591773196]
+    guild_ids = guilds
 )
 async def _info(ctx):
     """Returns an embed with information about Durdle bot"""
@@ -233,7 +237,18 @@ async def _info(ctx):
         value = "\n".join(features),
         inline = False
     )
-    await ctx.respond(embed = embed)
+    website = Button(
+        label = "Website",
+        url = r"https://kshitijk4poor.github.io/durdle-website/"
+    )
+    bot_link = Button(
+        label = "Add to another server",
+        url = r"https://discord.com/oauth2/authorize?client_id=936880656938594334&permissions=8&scope=bot%20applications.commands"
+    )
+    view = View()
+    view.add_item(website)
+    view.add_item(bot_link)
+    await ctx.respond(embed = embed, view = view)
 
 if __name__ == "__main__":
     client.loop.create_task(_reset_dict())
