@@ -1,3 +1,5 @@
+# type: ignore[import]
+
 from datetime import datetime
 from typing import (
     Any,
@@ -6,13 +8,20 @@ from typing import (
     List,
     Tuple
 )
+from urllib.parse import quote_plus
 import random
 import discord
+from discord.commands.context import ApplicationContext
+from discord.ui import (
+    Button,
+    View
+)
+import pyperclip
 from .database import (
     get_user_streak,
-    get_word
+    get_word,
+    get_word_data
 )
-from .durdle import get_word_meaning
 
 def random_colour() -> int:
     """Generates a random hex colour code.
@@ -25,7 +34,7 @@ def random_colour() -> int:
     return int(colour, 16)
 
 def create_guess_embed(
-    ctx,
+    ctx: ApplicationContext,
     users: Dict[str, Dict[str, Any]],
     result: Tuple[str, str]
 ) -> discord.Embed:
@@ -46,8 +55,9 @@ def create_guess_embed(
     return embed
 
 def create_final_result_embed(
-    ctx,
-    users: Dict[str, Dict[str, Any]]
+    ctx: ApplicationContext,
+    users: Dict[str, Dict[str, Any]],
+    count: int
 ) -> discord.Embed:
     """If user's guess is correct, durdle bot returns the
     final embed with all tries of the user and the maximum
@@ -55,13 +65,14 @@ def create_final_result_embed(
 
     Args:
         users (Dict[str, Dict[str, Any]]): Dictionary of users data.
+        count (int): Durdle day counter.
     """
-    streaks = get_user_streak(str(ctx.author))
-    meaning, usage = get_word_meaning(users[str(ctx.author)]["word"])
+    streaks: Tuple[int, ...] = get_user_streak(str(ctx.author))
+    meaning, usage = get_word_data(users[str(ctx.author)]["word"])
     embed = discord.Embed(
         title = "\n".join(users[str(ctx.author)]["tries"]),
         colour = discord.Colour.green(),
-        description = f"**Durdle {users[str(ctx.author)]['count']}/6**"
+        description = f"**Durdle {count} {users[str(ctx.author)]['count']}/6**"
     )
     embed.add_field(
         name = "Word",
@@ -85,6 +96,39 @@ def create_final_result_embed(
     embed.set_thumbnail(url = str(ctx.author.display_avatar))
     return embed
 
+def create_final_result_view(
+    ctx: ApplicationContext,
+    users: Dict[str, Dict[str, Any]],
+    count: int
+) -> discord.ui.View:
+    """Return a view with copy result and share to Twitter
+    button for the final result embed.
+
+    Args:
+        users (Dict[str, Dict[str, Any]]): Dictionary of users data.
+        count (int): Durdle day counter.
+    """
+    tries: str = "\n".join(users[str(ctx.author)]["tries"])
+    count: str = f"Durdle {count} {users[str(ctx.author)]['count']}/6\n"
+    share: str = count + tries.replace(" ", "")
+    async def copy_result(interaction: discord.Interaction):
+        nonlocal share
+        return pyperclip.copy(share)
+    copy = Button(
+        label = "Copy result",
+        style = discord.ButtonStyle.success
+    )
+    twitter = Button(
+        label = "Share on Twitter",
+        style = discord.ButtonStyle.primary,
+        url = f"http://twitter.com/share?text={quote_plus(share)}"
+    )
+    copy.callback = copy_result
+    view = View()
+    view.add_item(copy)
+    view.add_item(twitter)
+    return view
+
 def create_error_embed(error: str) -> discord.Embed:
     embed = discord.Embed(
         title = f"⛔ {error}",
@@ -93,7 +137,7 @@ def create_error_embed(error: str) -> discord.Embed:
     return embed
 
 def update_users_dict(
-    ctx,
+    ctx: ApplicationContext,
     users: Dict[str, Dict[str, Any]],
     result: Tuple[str, str]
 ) -> Dict[str, Dict[str, Any]]:
@@ -113,7 +157,7 @@ def update_users_dict(
     return users
 
 def get_user_word(
-    ctx,
+    ctx: ApplicationContext,
     users: Dict[str, Dict[str, Any]]
 ) -> Dict[str, Dict[str, Any]]:
     """Fetch a new word for every user from the durdle word
@@ -126,7 +170,7 @@ def get_user_word(
         Dict[str, Dict[str, Any]]: Updated dictionary of user's data.
     """
     if str(ctx.author) not in users:
-        users[str(ctx.author)] = {
+        users[str(ctx.author)]: Dict[str, Any] = {
             "word": get_word(),
             "count": 0,
             "tries": [],

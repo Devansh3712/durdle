@@ -1,5 +1,4 @@
 from collections import Counter
-import requests
 from typing import (
     List,
     Dict,
@@ -97,13 +96,3 @@ def check_guess(guess: str, word: str) -> Tuple[str, str]:
     for char in chars:
         result_emojis += emojis[char] + " "
     return (result_emojis[:-1], result_string)
-
-def get_word_meaning(word: str):
-    try:
-        url = f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}"
-        data = requests.get(url).json()
-        meaning = data[0]["meanings"][0]["definitions"][0]["definition"]
-        usage = data[0]["meanings"][0]["definitions"][0]["example"]
-        return (meaning.capitalize(), usage.capitalize())
-    except:
-        return (False, False)
