@@ -43,7 +43,7 @@ client = commands.Bot()
 client.help_command = None
 
 users: Dict[str, Dict[str, Any]] = {} # local nested dictionary of user's data
-durdle_launch: date = date(2022, 2, 1)
+durdle_launch: date = date(2022, 2, 2)
 durdle_days_count: timedelta = datetime.utcnow().date() - durdle_launch # durdle day counter
 spell_checker = SpellChecker()
 check_spelling: Callable[str, bool] = lambda word: word == spell_checker.correction(word)
