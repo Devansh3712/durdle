@@ -16,7 +16,6 @@ from discord.ui import (
     Button,
     View
 )
-import pyperclip
 from .database import (
     get_user_streak,
     get_word
@@ -111,21 +110,12 @@ def create_final_result_view(
     tries: str = "\n".join(users[str(ctx.author)]["tries"])
     count: str = f"Durdle {count} {users[str(ctx.author)]['count']}/6\n"
     share: str = count + tries.replace(" ", "")
-    async def copy_result(interaction: discord.Interaction):
-        nonlocal share
-        return pyperclip.copy(share)
-    copy = Button(
-        label = "Copy result",
-        style = discord.ButtonStyle.success
-    )
     twitter = Button(
         label = "Share on Twitter",
         style = discord.ButtonStyle.primary,
         url = f"http://twitter.com/share?text={quote_plus(share)}"
     )
-    copy.callback = copy_result
     view = View()
-    view.add_item(copy)
     view.add_item(twitter)
     return view
 
