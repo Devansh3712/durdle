@@ -84,7 +84,9 @@ async def guess(
     schema:
 
     {
-        "word": get_word(),
+        "word": word,
+        "meaning": meaning,
+        "usage": usage,
         "count": 0,
         "tries": [],
         "guessed": False
@@ -146,6 +148,7 @@ async def guess(
                 await ctx.respond(embed = embed)
     else: # user's first guess of the day
         users = get_user_word(ctx, users) # fetch a random word for the user, store in the dict
+        print(users[str(ctx.author)]["word"])
         if len(word) != 5:
             embed = create_error_embed("Only 5 letter words allowed.")
             await ctx.respond(embed = embed)

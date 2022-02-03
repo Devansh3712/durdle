@@ -19,8 +19,7 @@ from discord.ui import (
 import pyperclip
 from .database import (
     get_user_streak,
-    get_word,
-    get_word_data
+    get_word
 )
 
 def random_colour() -> int:
@@ -68,7 +67,8 @@ def create_final_result_embed(
         count (int): Durdle day counter.
     """
     streaks: Tuple[int, ...] = get_user_streak(str(ctx.author))
-    meaning, usage = get_word_data(users[str(ctx.author)]["word"])
+    meaning = users[str(ctx.author)]["meaning"]
+    usage = users[str(ctx.author)]["usage"]
     embed = discord.Embed(
         title = "\n".join(users[str(ctx.author)]["tries"]),
         colour = discord.Colour.green(),
@@ -170,8 +170,11 @@ def get_user_word(
         Dict[str, Dict[str, Any]]: Updated dictionary of user's data.
     """
     if str(ctx.author) not in users:
+        word = get_word()
         users[str(ctx.author)]: Dict[str, Any] = {
-            "word": get_word(),
+            "word": word[0],
+            "meaning": word[1],
+            "usage": word[2],
             "count": 0,
             "tries": [],
             "guessed": False
