@@ -1,5 +1,25 @@
 # type: ignore[import]
 
+"""Durdle bot's main executable file.
+
+Durdle is inspired by the online word-guessing game, Wordle
+but includes some extra features as well. It is hosted on
+Heroku cloud service and uses MongoDB as its database to store
+user streaks. Currently the Durdle bot contains 4 slash commands,
+and is in its development stage.
+
+Methods:
+    guess(ctx, word): Compare the guess of a user and return results
+    streak(ctx): Return a user's maximum Durdle streak
+    help(ctx): Return list of commands of the Durdle bot
+    info(ctx): Return information about the Durdle bot project
+"""
+
+__author__ = "Devansh Singh"
+__license__ = "GNU AGPLv3"
+__version__ = "0.1.0"
+__status__ = "Development"
+
 from datetime import (
     date,
     datetime,
@@ -38,13 +58,13 @@ from durdle.utils import (
     update_users_dict
 )
 
-token = settings.token
+TOKEN = settings.token
 client = commands.Bot()
 client.help_command = None
 
 users: Dict[str, Dict[str, Any]] = {} # local nested dictionary of user's data
-durdle_launch: date = date(2022, 2, 2)
-durdle_days_count: timedelta = datetime.utcnow().date() - durdle_launch # durdle day counter
+DURDLE_LAUNCH: date = date(2022, 2, 2) # date of Durdle bot's launch
+durdle_days_count: timedelta = datetime.utcnow().date() - DURDLE_LAUNCH # durdle day counter
 spell_checker = SpellChecker()
 check_spelling: Callable[str, bool] = lambda word: word == spell_checker.correction(word)
 
@@ -57,7 +77,7 @@ async def _reset_dict() -> None:
         current_time = datetime.utcnow().strftime("%H%M")
         if current_time == "0000":
             users.clear()
-            durdle_days_count = datetime.utcnow().date() - durdle_launch
+            durdle_days_count = datetime.utcnow().date() - DURDLE_LAUNCH
             _time = 86400
         else:
             _time = 1
@@ -82,7 +102,6 @@ async def guess(
 
     A dictionary is created for every user with the following
     schema:
-
     {
         "word": word,
         "meaning": meaning,
@@ -91,7 +110,6 @@ async def guess(
         "tries": [],
         "guessed": False
     }
-    
     If the user guesses the word under 6 guesses, their durdle
     streak in database gets incremented by 1 else the streak becomes
     0.
@@ -100,6 +118,7 @@ async def guess(
         word (str): Word guessed by the user.
     """
     global users
+    word = word.lower().replace(" ", "") # remove whitespaces and convert to lowercase
     if str(ctx.author) in users: # user has already guessed once
         if users[str(ctx.author)]["count"] == 6:
             embed = create_error_embed("Your 6 guesses are over.")
@@ -114,9 +133,9 @@ async def guess(
             embed = create_error_embed("Word not found in dictionary.")
             await ctx.respond(embed = embed)
         else:
-            result = check_guess(word, users[str(ctx.author)]["word"])
+            result: Tuple[str, ...] = check_guess(word, users[str(ctx.author)]["word"])
             users = update_users_dict(ctx, users, result)
-            if word.lower() == users[str(ctx.author)]["word"] and users[str(ctx.author)]["count"] <= 6:
+            if word == users[str(ctx.author)]["word"] and users[str(ctx.author)]["count"] <= 6:
                 update_user_streak(str(ctx.author), True)
                 users[str(ctx.author)]["guessed"] = True
                 final = create_final_result_embed(
@@ -155,9 +174,15 @@ async def guess(
             embed = create_error_embed("Word not found in dictionary.")
             await ctx.respond(embed = embed)
         else:
-            result = check_guess(word, users[str(ctx.author)]["word"])
+            await client.change_presence(
+                activity = discord.Activity(
+                    type = discord.ActivityType.watching,
+                    name = f"{len(users)} guesses | {len(client.guilds)} servers"
+                )
+            )
+            result: Tuple[str, ...] = check_guess(word, users[str(ctx.author)]["word"])
             users = update_users_dict(ctx, users, result)
-            if word.lower() == users[str(ctx.author)]["word"]:
+            if word == users[str(ctx.author)]["word"]:
                 update_user_streak(str(ctx.author), True)
                 users[str(ctx.author)]["guessed"] = True
                 final = create_final_result_embed(
@@ -179,7 +204,7 @@ async def guess(
 async def streak(ctx: discord.Interaction) -> None:
     """Fetch current user's maximum durdle streak from
     the database"""
-    result = get_user_streak(str(ctx.author))
+    result: Tuple[int, ...] = get_user_streak(str(ctx.author))
     embed = discord.Embed(
         title = "Durdle Streak",
         colour = random_colour()
@@ -275,4 +300,4 @@ async def info(ctx: discord.Interaction) -> None:
 
 if __name__ == "__main__":
     client.loop.create_task(_reset_dict())
-    client.run(token)
+    client.run(TOKEN)

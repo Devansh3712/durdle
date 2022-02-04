@@ -1,15 +1,22 @@
-PY = python
+PY = venv\Scripts\python
+PIP = venv\Scripts\pip
 
 all = run
 
 run:
 	$(PY) main.py
 
-clean:
-	pyclean .
+install:
+	$(PIP) install poetry pyclean >> NUL 2>&1
+	$(PY) -m poetry install
 
 requirements:
-	poetry export -f requirements.txt --output requirements.txt --without-hashes
+	$(PY) -m poetry export -f requirements.txt --output requirements.txt --without-hashes
 
-install:
-	pip install -r requirements.txt
+test:
+	$(PY) -m pytest -v
+
+clean:
+	$(PY) -m pyclean .
+
+.PHONY: clean

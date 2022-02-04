@@ -1,5 +1,10 @@
 # type: ignore[import]
 
+__author__ = "Devansh Singh"
+__license__ = "GNU AGPLv3"
+__version__ = "0.1.0"
+__status__ = "Development"
+
 from datetime import datetime
 from typing import (
     Any,
@@ -66,8 +71,8 @@ def create_final_result_embed(
         count (int): Durdle day counter.
     """
     streaks: Tuple[int, ...] = get_user_streak(str(ctx.author))
-    meaning = users[str(ctx.author)]["meaning"]
-    usage = users[str(ctx.author)]["usage"]
+    meaning: str = users[str(ctx.author)]["meaning"]
+    usage: str = users[str(ctx.author)]["usage"]
     embed = discord.Embed(
         title = "\n".join(users[str(ctx.author)]["tries"]),
         colour = discord.Colour.green(),
@@ -81,12 +86,13 @@ def create_final_result_embed(
         name = "Max Streak",
         value = f"{streaks[0]}/{streaks[1]}"
     )
-    if meaning and usage:
+    if meaning:
         embed.add_field(
             name = "Meaning",
             value = meaning,
             inline = False
         )
+    if usage:
         embed.add_field(
             name = "Usage",
             value = usage,
@@ -160,7 +166,7 @@ def get_user_word(
         Dict[str, Dict[str, Any]]: Updated dictionary of user's data.
     """
     if str(ctx.author) not in users:
-        word = get_word()
+        word: Tuple[str, ...] = get_word()
         users[str(ctx.author)]: Dict[str, Any] = {
             "word": word[0],
             "meaning": word[1],

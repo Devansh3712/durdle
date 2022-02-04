@@ -1,10 +1,11 @@
+__author__ = "Devansh Singh"
+__license__ = "GNU AGPLv3"
+__version__ = "0.1.0"
+__status__ = "Development"
+
 from copy import deepcopy
 from random import randint
-from typing import (
-    Any,
-    List,
-    Tuple
-)
+from typing import Tuple
 from pymongo import MongoClient
 from .config import settings
 from .dictionary import word_list
@@ -13,20 +14,20 @@ client = MongoClient(settings.mongodb_uri)
 db = client["durdle"]
 user_collection = db["users"]
 
-def get_word() -> List[Any]:
+def get_word() -> Tuple[str, ...]:
     """Fetch a random word, its meaning and usage from
     the word list declared in the dictionary file.
 
     Returns:
-        List[Any]: Word, its meaning and usage fetched from
+        Tuple[str, ...]: Word, its meaning and usage fetched from
         the dictionary file.
     """
     _id = randint(0, len(word_list))
-    word_data = [
-        word_list[str(_id)]["word"],
-        word_list[str(_id)]["meaning"],
-        word_list[str(_id)]["usage"]
-    ]
+    word_data: Tuple[str, ...] = (
+        word_list[_id]["word"],
+        word_list[_id]["meaning"].decode("utf-8"),
+        word_list[_id]["usage"].decode("utf-8")
+    )
     return word_data
 
 def update_user_streak(username: str, guessed: bool) -> None:
