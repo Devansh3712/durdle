@@ -23,10 +23,14 @@ def get_word() -> Tuple[str, ...]:
         the dictionary file.
     """
     _id = randint(0, len(word_list))
+    meaning = word_list[_id]["meaning"] if word_list[_id]["meaning"] is False \
+        else word_list[_id]["meaning"].decode("utf-8")
+    usage = word_list[_id]["usage"] if word_list[_id]["usage"] is False \
+        else word_list[_id]["usage"].decode("utf-8")
     word_data: Tuple[str, ...] = (
         word_list[_id]["word"],
-        word_list[_id]["meaning"].decode("utf-8"),
-        word_list[_id]["usage"].decode("utf-8")
+        meaning,
+        usage
     )
     return word_data
 
