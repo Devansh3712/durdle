@@ -7,7 +7,7 @@ from collections import Counter
 from typing import (
     List,
     Dict,
-    Tuple
+    Tuple,
 )
 
 emojis: Dict[int, str] = {
@@ -61,12 +61,11 @@ def check_guess(guess: str, word: str) -> Tuple[str, str]:
         Tuple[str, str]: Tuple of result_emojis and emojified
         character string of guessed word.
     """
-    guess = guess.lower()
     result_emojis: str = ""
     result_string: str = " ".join([letters[char] for char in guess])
     chars: List[int] = []
-    guess_dict: Dict[str, int] = dict(Counter(guess))
-    word_dict: Dict[str, int] = dict(Counter(word))
+    guess_dict: Dict[str, int] = dict(Counter(guess))  # count of each character in guessed word
+    word_dict: Dict[str, int] = dict(Counter(word))  # count of each character in generated word
     for i, j in zip(guess, word):
         if i == j:
             chars.append(1)
@@ -75,12 +74,15 @@ def check_guess(guess: str, word: str) -> Tuple[str, str]:
         else:
             chars.append(0)
     for idx in range(5):
-        if chars[idx] != 1 and (guess[idx] in word) and word_dict[guess[idx]] != 0:
-            if guess_dict[guess[idx]] == word_dict[guess[idx]]:
+        if (
+            chars[idx] != 1 and guess[idx] in word \
+                and word_dict[guess[idx]] != 0
+        ):
+            if (guess_dict[guess[idx]] == word_dict[guess[idx]]):
                 chars[idx] = 2
                 word_dict[guess[idx]] -= 1
                 guess_dict[guess[idx]] -= 1
-            elif guess_dict[guess[idx]] > word_dict[guess[idx]]:
+            elif (guess_dict[guess[idx]] > word_dict[guess[idx]]):
                 if word_dict[guess[idx]] != 0:
                     chars[idx] = 2
                     word_dict[guess[idx]] -= 1
@@ -88,8 +90,8 @@ def check_guess(guess: str, word: str) -> Tuple[str, str]:
                 else:
                     chars[idx] = 0
                     guess_dict[guess[idx]] -= 1
-            elif guess_dict[guess[idx]] < word_dict[guess[idx]]:
-                if guess_dict[guess[idx]] != 0:
+            elif (guess_dict[guess[idx]] < word_dict[guess[idx]]):
+                if (guess_dict[guess[idx]] != 0):
                     chars[idx] = 2
                     word_dict[guess[idx]] -= 1
                     guess_dict[guess[idx]] -= 1

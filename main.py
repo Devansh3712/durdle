@@ -23,14 +23,14 @@ __status__ = "Development"
 from datetime import (
     date,
     datetime,
-    timedelta
+    timedelta,
 )
 from typing import (
     Any,
     Callable,
     Dict,
     List,
-    Tuple
+    Tuple,
 )
 import asyncio
 import discord
@@ -39,13 +39,13 @@ from discord.commands import Option
 from discord.ext import commands
 from discord.ui import (
     Button,
-    View
+    View,
 )
 from spellchecker import SpellChecker
 from durdle.config import settings
 from durdle.database import (
     get_user_streak,
-    update_user_streak
+    update_user_streak,
 )
 from durdle.durdle import check_guess
 from durdle.utils import (
@@ -55,18 +55,22 @@ from durdle.utils import (
     create_error_embed,
     get_user_word,
     random_colour,
-    update_users_dict
+    update_users_dict,
 )
 
 TOKEN = settings.token
 client = commands.Bot()
 client.help_command = None
 
-users: Dict[str, Dict[str, Any]] = {} # local nested dictionary of user's data
-DURDLE_LAUNCH: date = date(2022, 2, 2) # date of Durdle bot's launch
-durdle_days_count: timedelta = datetime.utcnow().date() - DURDLE_LAUNCH # durdle day counter
+users: Dict[str, Dict[str, Any]] = {}  # local nested dictionary of user's data
+DURDLE_LAUNCH: date = date(2022, 2, 2)  # date of Durdle bot's launch
+durdle_days_count: timedelta = (
+    datetime.utcnow().date() - DURDLE_LAUNCH  # durdle day counter
+)
 spell_checker = SpellChecker()
-check_spelling: Callable[str, bool] = lambda word: word == spell_checker.correction(word)
+check_spelling: Callable[str, bool] = (
+    lambda word: word == spell_checker.correction(word)
+)
 
 async def _reset_dict() -> None:
     """Clear the global users dictionary at 0000 hours GMT
@@ -89,7 +93,9 @@ async def on_ready() -> None:
     print(f"{datetime.utcnow()} - Durdle bot is working")
 
 @client.event
-async def on_application_command_error(ctx: discord.Interaction, error) -> None:
+async def on_application_command_error(
+    ctx: discord.Interaction, error
+) -> None:
     print(error)
 
 @client.slash_command(description = "Guess today's word")
@@ -108,7 +114,7 @@ async def guess(
         "usage": usage,
         "count": 0,
         "tries": [],
-        "guessed": False
+        "guessed": False,
     }
     If the user guesses the word under 6 guesses, their durdle
     streak in database gets incremented by 1 else the streak becomes
@@ -118,59 +124,62 @@ async def guess(
         word (str): Word guessed by the user.
     """
     global users
-    word = word.lower().replace(" ", "") # remove whitespaces and convert to lowercase
-    if str(ctx.author) in users: # user has already guessed once
-        if users[str(ctx.author)]["count"] == 6:
+    word = word.lower().replace(" ", "")  # remove whitespaces and convert to lowercase
+    if (str(ctx.author) in users):  # user has already guessed once
+        if (users[str(ctx.author)]["count"] == 6):
             embed = create_error_embed("Your 6 guesses are over.")
             await ctx.respond(embed = embed)
-        elif users[str(ctx.author)]["guessed"] == True: # user has already guessed the word
+        elif (users[str(ctx.author)]["guessed"] == True):  # user has already guessed the word
             embed = create_error_embed("You have already guessed the word!")
             await ctx.respond(embed = embed)
-        elif len(word) != 5:
+        elif (len(word) != 5):
             embed = create_error_embed("Only 5 letter words allowed.")
             await ctx.respond(embed = embed)
-        elif not check_spelling(word) and word != users[str(ctx.author)]["word"]:
+        elif (
+            not check_spelling(word) and \
+                word != users[str(ctx.author)]["word"]
+        ):
             embed = create_error_embed("Word not found in dictionary.")
             await ctx.respond(embed = embed)
         else:
-            result: Tuple[str, ...] = check_guess(word, users[str(ctx.author)]["word"])
+            result: Tuple[str, ...] = check_guess(
+                word, users[str(ctx.author)]["word"]
+            )
             users = update_users_dict(ctx, users, result)
-            if word == users[str(ctx.author)]["word"] and users[str(ctx.author)]["count"] <= 6:
+            if (
+                word == users[str(ctx.author)]["word"] and \
+                    users[str(ctx.author)]["count"] <= 6
+            ):
                 update_user_streak(str(ctx.author), True)
                 users[str(ctx.author)]["guessed"] = True
                 final = create_final_result_embed(
-                    ctx,
-                    users,
-                    durdle_days_count.days + 1
+                    ctx, users, durdle_days_count.days + 1
                 )
                 view = create_final_result_view(
-                    ctx,
-                    users,
-                    durdle_days_count.days + 1
+                    ctx, users, durdle_days_count.days + 1
                 )
                 await ctx.respond(embed = final, view = view)
-            elif users[str(ctx.author)]["count"] == 6:
+            elif (users[str(ctx.author)]["count"] == 6):
                 update_user_streak(str(ctx.author), False)
                 final = create_final_result_embed(
-                    ctx,
-                    users,
-                    durdle_days_count.days + 1
+                    ctx, users, durdle_days_count.days + 1
                 )
                 view = create_final_result_view(
-                    ctx,
-                    users,
-                    durdle_days_count.days + 1
+                    ctx, users, durdle_days_count.days + 1
                 )
                 await ctx.respond(embed = final, view = view)
             else:
                 embed = create_guess_embed(ctx, users, result)
                 await ctx.respond(embed = embed)
-    else: # user's first guess of the day
-        users = get_user_word(ctx, users) # fetch a random word for the user, store in the dict
-        if len(word) != 5:
+    else:  # user's first guess of the day
+        users = get_user_word(ctx, users)  # fetch a random word for the user, store in the dict
+        if (len(word) != 5):
             embed = create_error_embed("Only 5 letter words allowed.")
             await ctx.respond(embed = embed)
-        elif not check_spelling(word) and word != users[str(ctx.author)]["word"]:
+        elif (
+            not check_spelling(word) and \
+                word != users[str(ctx.author)]["word"]
+        ):
             embed = create_error_embed("Word not found in dictionary.")
             await ctx.respond(embed = embed)
         else:
@@ -180,20 +189,18 @@ async def guess(
                     name = f"{len(users)} guesses | {len(client.guilds)} servers"
                 )
             )
-            result: Tuple[str, ...] = check_guess(word, users[str(ctx.author)]["word"])
+            result: Tuple[str, ...] = check_guess(
+                word, users[str(ctx.author)]["word"]
+            )
             users = update_users_dict(ctx, users, result)
-            if word == users[str(ctx.author)]["word"]:
+            if (word == users[str(ctx.author)]["word"]):
                 update_user_streak(str(ctx.author), True)
                 users[str(ctx.author)]["guessed"] = True
                 final = create_final_result_embed(
-                    ctx,
-                    users,
-                    durdle_days_count.days + 1
+                    ctx, users, durdle_days_count.days + 1
                 )
                 view = create_final_result_view(
-                    ctx,
-                    users,
-                    durdle_days_count.days + 1
+                    ctx, users, durdle_days_count.days + 1
                 )
                 await ctx.respond(embed = final, view = view)
             else:
@@ -206,25 +213,21 @@ async def streak(ctx: discord.Interaction) -> None:
     the database"""
     result: Tuple[int, ...] = get_user_streak(str(ctx.author))
     embed = discord.Embed(
-        title = "Durdle Streak",
-        colour = random_colour()
+        title = "Durdle Streak", colour = random_colour()
     )
     embed.set_thumbnail(url = str(ctx.author.display_avatar))
     embed.add_field(
-        name = "Username",
-        value = str(ctx.author),
-        inline = False
+        name = "Username", value = str(ctx.author), inline = False
     )
     embed.add_field(
-        name = "Max Streak",
-        value = f"{result[0]}/{result[1]}",
-        inline = False
+        name = "Max Streak", value = f"{result[0]}", inline = False
+    )
+    embed.add_field(
+        name = "Games Played", value = f"{result[1]}", inline = True
     )
     percentage = (result[0] / result[1]) * 100 if result[1] else 0
     embed.add_field(
-        name = "Accuracy",
-        value = f"{percentage:.2f}%",
-        inline = False
+        name = "Accuracy", value = f"{percentage:.2f}%", inline = False
     )
     await ctx.respond(embed = embed)
 
@@ -232,21 +235,17 @@ async def streak(ctx: discord.Interaction) -> None:
 async def help(ctx: discord.Interaction) -> None:
     """Returns an embed with all commands of Durdle bot"""
     embed = discord.Embed(
-        title = "Durdle Commands",
-        colour = random_colour()
+        title = "Durdle Commands", colour = random_colour()
     )
     embed.set_thumbnail(url = str(client.user.display_avatar))
     embed.add_field(
-        name = "Guess today's word",
-        value = "`/guess`"
+        name = "Guess today's word", value = "`/guess`"
     )
     embed.add_field(
-        name = "Get your max durdle streak",
-        value = "`/streak`"
+        name = "Get your max durdle streak", value = "`/streak`"
     )
     embed.add_field(
-        name = "Information about durdle bot",
-        value = "`/info`"
+        name = "Information about durdle bot", value = "`/info`"
     )
     await ctx.respond(embed = embed)
 
@@ -270,9 +269,7 @@ async def info(ctx: discord.Interaction) -> None:
         inline = False
     )
     embed.add_field(
-        name = "Made with",
-        value = "Python, MongoDB, Heroku",
-        inline = False
+        name = "Made with", value = "Python, MongoDB, Heroku", inline = False
     )
     features: List[str] = [
         "• Different word for every user",
@@ -281,9 +278,7 @@ async def info(ctx: discord.Interaction) -> None:
         "• Keeps count of durdle play streak of every user"
     ]
     embed.add_field(
-        name = "Features",
-        value = "\n".join(features),
-        inline = False
+        name = "Features", value = "\n".join(features), inline = False
     )
     website = Button(
         label = "Website",
@@ -293,9 +288,14 @@ async def info(ctx: discord.Interaction) -> None:
         label = "Add to another server",
         url = r"https://discord.com/oauth2/authorize?client_id=936880656938594334&permissions=8&scope=bot%20applications.commands"
     )
+    top_gg = Button(
+        label = "View on top.gg",
+        url = r"https://top.gg/bot/936880656938594334"
+    )
     view = View()
     view.add_item(website)
     view.add_item(bot_link)
+    view.add_item(top_gg)
     await ctx.respond(embed = embed, view = view)
 
 if __name__ == "__main__":

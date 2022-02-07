@@ -1,3 +1,5 @@
+# type: ignore[import]
+
 __author__ = "Devansh Singh"
 __license__ = "GNU AGPLv3"
 __version__ = "0.1.0"
@@ -5,7 +7,11 @@ __status__ = "Development"
 
 from copy import deepcopy
 from random import randint
-from typing import Tuple
+from typing import (
+    Any,
+    Dict,
+    Tuple,
+)
 from pymongo import MongoClient
 from .config import settings
 from .dictionary import word_list
@@ -22,15 +28,13 @@ def get_word() -> Tuple[str, ...]:
         Tuple[str, ...]: Word, its meaning and usage fetched from
         the dictionary file.
     """
-    _id = randint(0, len(word_list))
-    meaning = word_list[_id]["meaning"] if word_list[_id]["meaning"] is False \
-        else word_list[_id]["meaning"].decode("utf-8")
-    usage = word_list[_id]["usage"] if word_list[_id]["usage"] is False \
-        else word_list[_id]["usage"].decode("utf-8")
+    _id = randint(0, 3623)  # number of words in word_list
+    meaning = word_list[_id]["meaning"] if word_list[_id]["meaning"] \
+        is False else word_list[_id]["meaning"].decode("utf-8")
+    usage = word_list[_id]["usage"] if word_list[_id]["usage"] \
+        is False else word_list[_id]["usage"].decode("utf-8")
     word_data: Tuple[str, ...] = (
-        word_list[_id]["word"],
-        meaning,
-        usage
+        word_list[_id]["word"], meaning, usage
     )
     return word_data
 
@@ -41,12 +45,11 @@ def update_user_streak(username: str, guessed: bool) -> None:
     
     Maximum streak is the max(current_streak, max_streak).
     The document schema for a user is as follows:
-    
     {
         "username": username,
         "current_streak": 0,
         "max_streak": 0,
-        "played": 0
+        "played": 0,
     }
 
     Args:
@@ -54,34 +57,32 @@ def update_user_streak(username: str, guessed: bool) -> None:
         guessed (bool): Whether the user was able to guess the word or not.
     """
     user_data = user_collection.find_one({ "username": username })
-    if not user_data:
-        updated_user_data = {
+    if (not user_data):
+        updated_user_data: Dict[str, Any] = {
             "username": username,
             "current_streak": 0,
             "max_streak": 0,
-            "played": 0
+            "played": 0,
         }
-        if guessed:
-            updated_user_data["current_streak"] += 1 # type: ignore
+        if (guessed):
+            updated_user_data["current_streak"] += 1
         else:
             updated_user_data["current_streak"] = 0
-        updated_user_data["played"] += 1 # type: ignore
-        if updated_user_data["current_streak"] > updated_user_data["max_streak"]: # type: ignore
+        updated_user_data["played"] += 1
+        if (updated_user_data["current_streak"] > updated_user_data["max_streak"]):
             updated_user_data["max_streak"] = updated_user_data["current_streak"]
         user_collection.insert_one(updated_user_data)
     else:
-        updated_user_data = deepcopy(user_data)
-        if guessed:
-            updated_user_data["current_streak"] += 1 # type: ignore
+        updated_user_data: Dict[str, Any] = deepcopy(user_data)
+        if (guessed):
+            updated_user_data["current_streak"] += 1
         else:
             updated_user_data["current_streak"] = 0
-        updated_user_data["played"] += 1 # type: ignore
-        if updated_user_data["current_streak"] > updated_user_data["max_streak"]: # type: ignore
+        updated_user_data["played"] += 1
+        if (updated_user_data["current_streak"] > updated_user_data["max_streak"]):
             updated_user_data["max_streak"] = updated_user_data["current_streak"]
         user_collection.update_one(
-            user_data,
-            { "$set": updated_user_data },
-            upsert = False
+            user_data, { "$set": updated_user_data }, upsert = False,
         )
 
 def get_user_streak(username: str) -> Tuple[int, int]:
@@ -96,12 +97,12 @@ def get_user_streak(username: str) -> Tuple[int, int]:
         times they played durdle.
     """
     user_data = user_collection.find_one({ "username": username })
-    if not user_data:
+    if (not user_data):
         updated_user_data = {
             "username": username,
             "current_streak": 0,
             "max_streak": 0,
-            "played": 0
+            "played": 0,
         }
         user_collection.insert_one(updated_user_data)
         return (0, 0)

@@ -11,7 +11,7 @@ from typing import (
     Callable,
     Dict,
     List,
-    Tuple
+    Tuple,
 )
 from urllib.parse import quote_plus
 import random
@@ -19,11 +19,11 @@ import discord
 from discord.commands.context import ApplicationContext
 from discord.ui import (
     Button,
-    View
+    View,
 )
 from .database import (
     get_user_streak,
-    get_word
+    get_word,
 )
 
 def random_colour() -> int:
@@ -79,24 +79,18 @@ def create_final_result_embed(
         description = f"**Durdle {count} {users[str(ctx.author)]['count']}/6**"
     )
     embed.add_field(
-        name = "Word",
-        value = users[str(ctx.author)]["word"]
+        name = "Word", value = users[str(ctx.author)]["word"]
     )
     embed.add_field(
-        name = "Max Streak",
-        value = f"{streaks[0]}/{streaks[1]}"
+        name = "Max Streak", value = f"{streaks[0]}/{streaks[1]}"
     )
-    if meaning:
+    if (meaning):
         embed.add_field(
-            name = "Meaning",
-            value = meaning,
-            inline = False
+            name = "Meaning", value = meaning, inline = False
         )
-    if usage:
+    if (usage):
         embed.add_field(
-            name = "Usage",
-            value = usage,
-            inline = False
+            name = "Usage", value = usage, inline = False
         )
     embed.set_thumbnail(url = str(ctx.author.display_avatar))
     return embed
@@ -127,8 +121,7 @@ def create_final_result_view(
 
 def create_error_embed(error: str) -> discord.Embed:
     embed = discord.Embed(
-        title = f"⛔ {error}",
-        colour = discord.Colour.red()
+        title = f"⛔ {error}", colour = discord.Colour.red()
     )
     return embed
 
@@ -165,7 +158,7 @@ def get_user_word(
     Returns:
         Dict[str, Dict[str, Any]]: Updated dictionary of user's data.
     """
-    if str(ctx.author) not in users:
+    if (str(ctx.author) not in users):
         word: Tuple[str, ...] = get_word()
         users[str(ctx.author)]: Dict[str, Any] = {
             "word": word[0],
@@ -173,6 +166,6 @@ def get_user_word(
             "usage": word[2],
             "count": 0,
             "tries": [],
-            "guessed": False
+            "guessed": False,
         }
     return users
