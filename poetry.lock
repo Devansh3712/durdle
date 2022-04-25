@@ -241,7 +241,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "py-cord"
-version = "2.0.0b4"
+version = "2.0.0b7"
 description = "A Python wrapper for the Discord API"
 category = "main"
 optional = false
@@ -252,7 +252,7 @@ develop = false
 aiohttp = ">=3.6.0,<3.9.0"
 
 [package.extras]
-docs = ["sphinx (==4.4.0)", "sphinxcontrib-trio (==1.1.2)", "sphinxcontrib-websupport", "myst-parser"]
+docs = ["sphinx (==4.5.0)", "sphinxcontrib-trio (==1.1.2)", "sphinxcontrib-websupport", "myst-parser"]
 speed = ["orjson (>=3.5.4)", "aiodns (>=1.1)", "brotlipy", "cchardet"]
 voice = ["PyNaCl (>=1.3.0,<1.6)"]
 
@@ -260,7 +260,7 @@ voice = ["PyNaCl (>=1.3.0,<1.6)"]
 type = "git"
 url = "https://github.com/Pycord-Development/pycord"
 reference = "master"
-resolved_reference = "429dadce242bcdd8cfc224a072a5558497d0618b"
+resolved_reference = "223616fa8992ff918f5c9e9a83f6668870c9a60f"
 
 [[package]]
 name = "pycares"
@@ -341,11 +341,11 @@ python-versions = "*"
 
 [[package]]
 name = "pytest"
-version = "7.0.1"
+version = "7.1.2"
 description = "pytest: simple powerful testing with Python"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 atomicwrites = {version = ">=1.0", markers = "sys_platform == \"win32\""}
@@ -452,7 +452,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "5caf32ddc989880044f446e9a4393c7b53bc90d5bca0a3131dcacbd30d1da1eb"
+content-hash = "a839ac4a425b4afcb78641bd20df3321122cf75cd7d19604a17e1c432388d56b"
 
 [metadata.files]
 aiodns = [
@@ -1039,8 +1039,8 @@ pyspellchecker = [
     {file = "pyspellchecker-0.6.3.tar.gz", hash = "sha256:764dfe1bcbd4d860b74205402167d55a02910870c07b83678e7d6b5a4d471909"},
 ]
 pytest = [
-    {file = "pytest-7.0.1-py3-none-any.whl", hash = "sha256:9ce3ff477af913ecf6321fe337b93a2c0dcf2a0a1439c43f5452112c1e4280db"},
-    {file = "pytest-7.0.1.tar.gz", hash = "sha256:e30905a0c131d3d94b89624a1cc5afec3e0ba2fbdb151867d8e0ebd49850f171"},
+    {file = "pytest-7.1.2-py3-none-any.whl", hash = "sha256:13d0e3ccfc2b6e26be000cb6568c832ba67ba32e719443bfe725814d3c42433c"},
+    {file = "pytest-7.1.2.tar.gz", hash = "sha256:a06a0425453864a270bc45e71f783330a7428defb4230fb5e6a731fde06ecd45"},
 ]
 python-dotenv = [
     {file = "python-dotenv-0.19.2.tar.gz", hash = "sha256:a5de49a31e953b45ff2d2fd434bbc2670e8db5273606c1e737cc6b93eff3655f"},
