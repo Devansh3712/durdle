@@ -33,7 +33,7 @@ python-dotenv==0.19.2; python_full_version >= "3.6.1" and python_version >= "3.5
 requests==2.27.1; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.6.0")
 tomli==2.0.0; python_version >= "3.7"
 types-requests==2.27.8
-types-urllib3==1.26.8
+types-urllib3==1.26.15
 typing-extensions==4.0.1; python_version >= "3.6" and python_full_version >= "3.6.1"
 urllib3==1.26.8; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version < "4"
 yarl==1.7.2; python_version >= "3.6" and python_full_version >= "3.8.0"
