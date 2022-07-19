@@ -12,7 +12,7 @@ pydantic = {extras = ["dotenv"], version = "^1.9.0"}
 pymongo = {extras = ["srv"], version = "^4.0.1"}
 pyspellchecker = "^0.6.3"
 asyncio = "^3.4.3"
-mypy = "^0.931"
+mypy = "^0.971"
 requests = "^2.27.1"
 types-requests = "^2.27.8"
 aiodns = "^3.0.0"
