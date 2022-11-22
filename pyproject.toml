@@ -9,7 +9,7 @@ license = "MIT"
 python = "^3.10"
 py-cord = {git = "https://github.com/Pycord-Development/pycord"}
 pydantic = {extras = ["dotenv"], version = "^1.9.0"}
-pymongo = {extras = ["srv"], version = "^4.0.1"}
+pymongo = {extras = ["srv"], version = "^4.3.3"}
 pyspellchecker = "^0.6.3"
 asyncio = "^3.4.3"
 mypy = "^0.931"
